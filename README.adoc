@@ -8,7 +8,21 @@ advice.
 [source,java]
 .src/main/java/contextdemo/PrintlnTraceInterceptor.java
 ----
-include::src/main/java/contextdemo/PrintlnTraceInterceptor.java[]
+package contextdemo;
+
+import io.micronaut.aop.MethodInterceptor;
+import io.micronaut.aop.MethodInvocationContext;
+
+import javax.inject.Singleton;
+
+@Singleton
+public class PrintlnTraceInterceptor implements MethodInterceptor {
+    @Override
+    public Object intercept(MethodInvocationContext context) {
+        System.out.println("Invoking method " + context.getExecutableMethod().getMethodName() + " on class " + context.getDeclaringType());
+        return context.proceed();
+    }
+}
 ----
 
 The `PrintlnTrace` annotation is associated with that advice.
@@ -16,7 +30,25 @@ The `PrintlnTrace` annotation is associated with that advice.
 [source,java]
 .src/main/java/contextdemo/PrintlnTrace.java
 ----
-include::src/main/java/contextdemo/PrintlnTrace.java[]
+package contextdemo;
+
+import io.micronaut.aop.Around;
+import io.micronaut.context.annotation.Type;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@Documented
+@Retention(RUNTIME)
+@Target({ElementType.METHOD})
+@Around
+@Type(PrintlnTraceInterceptor.class)
+public @interface PrintlnTrace {
+}
 ----
 
 A trivial `Singleton` bean has that advice applied to it.
@@ -24,7 +56,17 @@ A trivial `Singleton` bean has that advice applied to it.
 [source,java]
 .src/main/java/contextdemo/SomeHelper.java
 ----
-include::src/main/java/contextdemo/SomeHelper.java[]
+package contextdemo;
+
+import javax.inject.Singleton;
+
+@Singleton
+public class SomeHelper {
+    @PrintlnTrace
+    public void doSomething() {
+        System.out.println("Hello From SomeHelper");
+    }
+}
 ----
 
 The `Application` class creates an `ApplicationContext`, retrieves
@@ -33,7 +75,18 @@ the `SomeHelper` bean from the context and interacts with it.
 [source,java]
 .src/main/java/contextdemo/Application.java
 ----
-include::src/main/java/contextdemo/Application.java[]
+package contextdemo;
+
+import io.micronaut.context.ApplicationContext;
+
+public class Application {
+
+    public static void main(String[] args) {
+        final ApplicationContext context = ApplicationContext.run();
+        final SomeHelper helper = context.getBean(SomeHelper.class);
+        helper.doSomething();
+    }
+}
 ----
 
 ## Run The Application
