@@ -1,0 +1,76 @@
+# Simple Application Context Demo
+
+This project contains a simple piece of Around
+advice.
+
+## Classes In The Project
+
+[source,java]
+.src/main/java/contextdemo/PrintlnTraceInterceptor.java
+----
+include::src/main/java/contextdemo/PrintlnTraceInterceptor.java[]
+----
+
+The `PrintlnTrace` annotation is associated with that advice.
+
+[source,java]
+.src/main/java/contextdemo/PrintlnTrace.java
+----
+include::src/main/java/contextdemo/PrintlnTrace.java[]
+----
+
+A trivial `Singleton` bean has that advice applied to it.
+
+[source,java]
+.src/main/java/contextdemo/SomeHelper.java
+----
+include::src/main/java/contextdemo/SomeHelper.java[]
+----
+
+The `Application` class creates an `ApplicationContext`, retrieves
+the `SomeHelper` bean from the context and interacts with it.
+
+[source,java]
+.src/main/java/contextdemo/Application.java
+----
+include::src/main/java/contextdemo/Application.java[]
+----
+
+## Run The Application
+
+The application may be run with Gradle.
+
+    ./gradlew run
+
+An executable .jar may be created.
+
+    ./gradlew shadowJar
+    java -jar build/libs/micronaut-context-demo-0.1-all.jar
+
+The output indicates that the bean exists in the application
+context and that the expected advice is applied to that bean.
+
+```
+$ ./gradlew run
+
+> Task :run
+Invoking method doSomething on class class contextdemo.SomeHelper
+Hello From SomeHelper
+
+BUILD SUCCESSFUL in 1s
+```
+
+```
+$ ./gradlew shadowJar
+
+> Task :compileJava
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 2 executed
+
+$ java -jar build/libs/micronaut-context-demo-0.1-all.jar
+Invoking method doSomething on class class contextdemo.SomeHelper
+Hello From SomeHelper
+```
+
+

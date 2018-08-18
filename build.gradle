@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
+    }
+}
+
+version "0.1"
+group "micronaut-context-demo"
+
+apply plugin:"com.github.johnrengelman.shadow"
+apply plugin:"application"
+apply plugin:"java"
+
+repositories {
+    mavenLocal()
+    maven { url "https://jcenter.bintray.com" }
+}
+
+dependencies {
+    annotationProcessor "io.micronaut:inject-java:$micronautVersion"
+    compile "io.micronaut:inject:$micronautVersion"
+    compile "io.micronaut:aop:$micronautVersion"
+}
+
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
+
+mainClassName = "contextdemo.Application"
+compileJava.options.compilerArgs += '-parameters'
+compileTestJava.options.compilerArgs += '-parameters'
